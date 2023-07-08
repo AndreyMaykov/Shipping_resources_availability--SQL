@@ -1,0 +1,89 @@
+/*
+
+Object: stored procedure 
+
+MySQL version: 8.0
+
+Author: Andrey Maykov
+
+Script Date: 2022-10-11
+
+Description:
+ 
+For data contained in tables t_k (k = 1, ... , kmax)
+whose structure is identical to that of wave_timings,
+this procedure creates a comparison table. 
+
+Note: the actual names of the tables and columns here are passed 
+to the procedure and thus can be any valid table/column names.
+
+For each k, all the data originating in the same row of t_k
+are inserted in a single row of the comparison table.
+
+In the comparison table, the data is organized as follows:
+- the values retrieved from the columns id_k (k = 1, ..., kmax)
+are gathered in the comparison table's column with the name id;
+- the values retrieved from the columns wave_beginning_k and wave_cutoff_k 
+are inserted in separate columns t_k_wave_beginning and t_k_wave_cutoff 
+of the comparison table.
+
+*/
+
+DROP PROCEDURE IF EXISTS cmpr_variants_wt;
+DELIMITER $$
+CREATE PROCEDURE cmpr_variants_wt(
+	-- The tables to be compared:
+	  IN in_tbs_to_compare VARCHAR(64)
+	-- The name of the resulting comparison table:
+	, IN foj_result VARCHAR(64)
+)
+	SQL SECURITY INVOKER
+	READS SQL DATA
+	COMMENT 'Compares variants of wave_timings'
+
+BEGIN
+	
+	DECLARE errno INT;
+	DECLARE msg VARCHAR(255);
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		GET CURRENT DIAGNOSTICS CONDITION 1
+	    errno = MYSQL_ERRNO , msg = MESSAGE_TEXT;
+	    SELECT CONCAT(
+	    	  'Error executing cmpr_variants_wt(): '
+			, errno
+	    	, " - "
+	    	, msg
+	    ) AS "Error message";
+	END;
+
+	DROP TEMPORARY TABLE IF EXISTS id_cols_wt;
+	CREATE TEMPORARY TABLE id_cols_wt (
+		id INT,
+		col_name VARCHAR(64)
+	);
+	INSERT INTO id_cols_wt 
+	VALUES 
+		  (1, 'id')
+	;
+
+	DROP TEMPORARY TABLE IF EXISTS dat_cols_wt;
+	CREATE TEMPORARY TABLE dat_cols_wt (
+		id INT,
+		col_name VARCHAR(64)
+	);
+	INSERT INTO dat_cols_wt 
+	VALUES 
+		  (1, 'wave_beginning')
+		, (2, 'wave_cutoff')
+	;
+	
+	CALL compare_variants(
+		  in_tbs_to_compare
+		, 'id_cols_wt'
+		, 'dat_cols_wt'
+		, foj_result
+	);
+
+END$$
+DELIMITER ;
