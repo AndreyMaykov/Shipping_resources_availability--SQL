@@ -1,9 +1,9 @@
 # Shipping Resources Availability Project
 
 The main goal of this project is to provide a database-level solution to 
-<a href="https://github.com/AndreiMaikov/MVM_Shipping--SQL/blob/main/Readme.md/#Calculating_intervals">the resources availability problem</a> related to the OM shipping database 
-(see <a href="https://github.com/AndreiMaikov/MVM_Shipping--SQL/blob/main/Readme.md">Online Marketplace Shipping Schema Project</a>). However, some of the stored procedures created for this purpose can be helpful for handling a much more complex problem &mdash; 
-<a href="https://github.com/AndreiMaikov/MVM_Shipping--SQL/blob/main/Readme.md/#Stage_B">dispatching orders and vehicles for a wave</a> 
+<a href="https://github.com/AndreyMaykov/Online_marketplace_shipping__SQL/blob/main/Readme.md/#Calculating_intervals">the resources availability problem</a> related to the OM shipping database 
+(see <a href="https://github.com/AndreyMaykov/Online_marketplace_shipping__SQL/blob/main/Readme.md">Online Marketplace Shipping Schema Project</a>). However, some of the stored procedures created for this purpose can be helpful for handling a much more complex problem &mdash; 
+<a href="https://github.com/AndreyMaykov/Online_marketplace_shipping__SQL/blob/main/Readme.md/#Stage_B">dispatching orders and vehicles for a wave</a> 
 in the OM shipping management system.
 
 ## Contents
@@ -37,7 +37,7 @@ The following aspects of  the OM shipping management system are essential for th
 2. <a name="various_applications">Various applications can be used to access the database;</a>
 3. <a name="connection_stability">During a session, the connection between the user's application and the DBMS is fairly stable.</a>
 
-As mentioned in <a href="https://github.com/AndreiMaikov/MVM_Shipping--SQL/blob/main/Readme.md/#Calculating_intervals">the discussion</a> of the OM Shipping Schema project, determining resources availability requires some calculations with the data the OM database contains, and such calculations can be carried out either by the database management system or an accessing application. 
+As mentioned in <a href="https://github.com/AndreyMaykov/Online_marketplace_shipping__SQL/blob/main/Readme.md/#Calculating_intervals">the discussion</a> of the OM Shipping Schema project, determining resources availability requires some calculations with the data the OM database contains, and such calculations can be carried out either by the database management system or an accessing application. 
 
 A significant advantage of the database-level approach is that it makes developing involved applications easier and helps ensure consistent access across all of them. For the OM shipping system, this is an important argument in favour of utilizing the database level (see <a href="#various_applications">2</a> above).
 
