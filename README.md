@@ -457,7 +457,7 @@ Otherwise, the user selects the optimal variant for each of the tables `staff_re
 <h2>Further development</h2>
 
 - In this project, there are data flows that are very much alike, but each of them is run by a stored procedure specific to this data flow –  for example, <a href="/src/sprocs/staff_regular_availability/change_sra.sql">`change_sra()`</a>, <a href="/src/sprocs/blocked_periods/change_bp.sql">`change_bp()`</a>, <a href="/src/sprocs/vehicles_not_in_service/change_nis.sql">`change_nis()`</a> and <a href="/src/sprocs/wave_timings/change_wt.sql">`change_wt()`</a> make changes in `staff_regular_availability`, `blocked_periods`,  `vehicles_not_in_service` and `wave_timings` respectively. With more extensive use of dynamic SQL (similar to that in <a href="/src/sprocs/create_mod.sql">`create_mod()`</a>), such a set of specific stored procedures can be replaced by a single procedure.
-- Currently, every OM shipping system user has the same data access privileges as those granted to them regarding the entire OM database. If the shipping system privileges need another configuration, this can be done either through using MySQL row-level security solutions, or via adjusting the SQL SECURITY clause values in the project’s stored procedures, or by a combination of both means.
+- Currently, every OM shipping system user has the same data access privileges as those granted to the user on the entire OM database. If the shipping system privileges need another configuration, this can be done either through using MySQL row-level security solutions, or via adjusting the SQL SECURITY clause values in the project’s stored procedures, or by a combination of both means.
 
 <a name="Acknowledgements">
 
