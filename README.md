@@ -7,28 +7,28 @@ The main goal of this project is to provide a database-level solution to
 in the OM shipping management system.
 
 ## Contents
-[Introduction](#Introduction) <br />
+[Introduction](#introduction) <br />
 [Technologies](#technologies) <br />
-[Major problems and their solutions](#Major_problems) <br />
-  [Multi-user functionality. Concurrency and isolation levels](#Multi-session) <br />
-  [Handling overlapping sets of intervals](#Handling_overlapping) <br />
-      [Example](#ovrlpg_example) <br />
-      [Mathematical preliminaries](#ovrlpg_math) <br />
-      [Algorithm](#ovrlpg_algorithm) <br />
-      [Implementation](#ovrlpg_impl) <br />
-  [Comparing OM Shipping datasets. Stored procedure compare_variants()](#Comparing_datasets) <br />
-      [Example](#cmpr_example) <br />
-      [The general case](#Gen_case_comparing) <br />
-      [Implementation](#impl_comparison) <br />
-[Shipping resources management process outline](#outline) <br />
-  [Stage 1](#process_stage_1) <br />
-  [Stage 2](#process_stage_2) <br />
-  [Stage 3](#process_stage_3) <br />
-[Further development](#Further_development)  <br />
-[Acknowledgements](#Acknowledgements)  <br />
+[Major problems and their solutions](#major-problems-and-their-solutions) <br />
+  [Multi-user functionality. Concurrency and isolation levels](#multi-user-functionality-concurrency-and-isolation-levels) <br />
+  [Handling overlapping sets of intervals](#handling-overlapping-sets-of-intervals) <br />
+      [Example](#example) <br />
+      [Mathematical preliminaries](#mathematical-preliminaries) <br />
+      [Algorithm](#algorithm) <br />
+      [Implementation](#implementation) <br />
+  [Comparing OM Shipping datasets. Stored procedure compare_variants()](#comparing-om-shipping-datasets-stored-procedure-compare_variants) <br />
+      [Example](#example-1) <br />
+      [The general case](#the-general-case) <br />
+      [Implementation](#implementation-1) <br />
+[Shipping resources management process outline](#shipping-resources-management-process-outline) <br />
+  [Stage 1](#stage-1) <br />
+  [Stage 2](#stage-2) <br />
+  [Stage 3](#stage-3) <br />
+[Further development](#further-development)  <br />
+[Acknowledgements](#acknowledgements)  <br />
 
   
-<a name="Introduction"><h2>Introduction</h2></a>
+## Introduction
 
 The following aspects of  the OM shipping management system are essential for this project.<br> 
 1. It is required that <br>
@@ -45,13 +45,14 @@ At the same time, one of the most significant drawbacks of this approach is the 
 
 These are the main reasons why for this project, the database-level approach was chosen over its application-level alternative.
 
-<a name="technologies"><h2>Technologies</h2></a>
+## Technologies
+
 - MySQL 8.0.27 / DBeaver 21.3
 - AWS RDS
 
-<a name="Major_problems"><h2>Major problems and their solutions</h2></a>
+## Major problems and their solutions
 
-<a name="Multi-session"><h3>Multi-user functionality. Concurrency and isolation levels</h3></a>
+### Multi-user functionality. Concurrency and isolation levels
 
 For a session user, the process of modifying data in the OM database can include creating modification variants for multiple DB tables (see&nbsp;<a href="Multi-session_req_ii">1.ii</a> above) and evaluating these variants against OM shipping needs and policies. The user may add variants in several cycles before a proper combination of variants is obtained. 
 
@@ -77,11 +78,11 @@ This general scheme was implemented using SQL temporary tables for all the data 
 **Note.**&nbsp;
 Most of the procedures in this implementation only involve temp tables; therefore, DB permanent tables mostly remain unlocked during the session. However, a small number of procedures include series of reading, data manipulation and writing operations performed on the permanent tables' data, which requires locking the tables for a short (sub-second on a typical server) time. The necessary locks are acquired and released by SQL transactions included in stored procedures (for example, see <a href="/src/sprocs/staff_regular_availability/change_sra.sql">`change_sra.sql`</a>). For all the transactions, the isolation level is REPEATABLE READ.
 
-<a name = "Handling_overlapping"><h2>Handling overlapping sets of intervals</h2></a>
+### Handling overlapping sets of intervals
 
-The following example is only meant to outline the problem of overlapping time intervals in OM Shipping datasets; for a more rigorous discussion of the problem, see <a href = "#ovrlpg_math">below</a>.
+The following example is only meant to outline the problem of overlapping time intervals in OM Shipping datasets; for a more rigorous discussion of the problem, see <a href = "#mathematical-preliminaries">below</a>.
 
-<a name="ovrlpg_example"><h4>Example</h4></a>
+#### Example
 
 Suppose the availability of an employee on Monday is presented in `staff_regular_availability` <a name = "five_rows">like this</a>:  
 
@@ -114,7 +115,7 @@ In a table that did not include overlapping intervals initially, an overlapping 
 
 Maintaining non-overlapping (i.e. making appropriate replacements) manually after data modifications can be tedious; it also entails a risk of errors. A more useful alternative is to have such replacements performed by the system automatically. An algorithm for that and its implementation are discussed in the next three subsections.
 
-<a name="ovrlpg_math"><h4>Mathematical preliminaries</h4></a>
+#### Mathematical preliminaries
 
 We use the term **interval** as a shorthand for a
 <a href=https://en.wikipedia.org/wiki/Interval_(mathematics)> bounded closed interval</a> 
@@ -151,7 +152,7 @@ $\\:\\:\\:\displaystyle{y''\_m < y'\_{m+1}} \\:$ _for any_ $m = 1, ... , M - 1\\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**(2)**&nbsp;
 $\\:\displaystyle{\bigcup_{m = 1}^M Y_m = \bigcup_{n = 1}^N X_n}\\:$.
 
-The two tables we dealt with in <a href="#ovrlpg_example">the previous subsection</a> provide an illustration to the above definition: for the five time intervals from <a href="#five_rows">the first table</a>, the two intervals from <a href="#two_rows">the second one</a> is exactly what we call a resolving set.
+The two tables we dealt with in <a href="#example">the previous subsection</a> provide an illustration to the above definition: for the five time intervals from <a href="#five_rows">the first table</a>, the two intervals from <a href="#two_rows">the second one</a> is exactly what we call a resolving set.
 
 **Note.**&nbsp;
 Any resolving set is non-overlapping by definition as it follows from (1) that $\displaystyle{Y\_{m\_1}}\bigcap Y\_{m\_2} = \varnothing\\:$ for any $m_1 \neq m_2\\:$. On the other hand, any non-overlapping set of intervals can be converted into a non-overlapping set satisfying (1) by just renumbering its intervals in the ascending order of their left or right ends. Therefore, seeking any non-overlapping equivalent of $\{{\\{X\_n\\}\_{n=1}^N}\}$ is the same task as seeking its resolving set.
@@ -185,7 +186,7 @@ the left end $x'\_{n\_0}$ (right end $x''\_{n\_0}$) of any $X\_{n\_0}$ is at the
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $\\,$
 $x'\_{n\_0}$ $(x''\_{n\_0})$ is neither an interior point nor the right (left) end of some $X\_n\\:$.
 
-<h4><a name="ovrlpg_algorithm">Algorithm</a></h4>
+#### Algorithm
 
 Statements <a href="#stmt_1">S1</a> and <a href="#stmt_2">S2</a> lead to the following simple algorithm for resolving a set of intervals $\\{X_n\\}\_{n = 1}^{N}\\,.$
 
@@ -194,7 +195,7 @@ Statements <a href="#stmt_1">S1</a> and <a href="#stmt_2">S2</a> lead to the fol
 3. Repeat steps 1 and 2 for $\\{x’'\_n\\}\_{n = 1}^{N}$ and the inequality $$x'\_n \leq x''\_{n\_0} < x''\_{n}\\:.$$ This gives $\\{y’'\_m\\}\_{m=1}^M$ with the same $M$ as in step 2.
 4. Set $$Y_m := [y’\_m, \\, y’’\_m] \qquad \mbox{\sf{for any}} \quad m = 1, ... , M\\,.$$ This yields $\\{Y_m\\}\_{m = 1}^{M}$ that resolves the original set of intervals $\\{X_n\\}\_{n = 1}^{N}\\,.$
 
-<h4><a name="ovrlpg_impl">Implementation</a></h4>
+#### Implementation
 
 This algorithm is implemented in four stored procedures: <a href="/src/sprocs/staff_regular_availability/resolve_intvls_sra.sql">**`resolve_intvls_sra()`**</a>, <a href="/src/sprocs/blocked_periods/resolve_intvls_bp.sql">**`resolve_intvls_bp()`**</a>, <a href="/src/sprocs/vehicles_not_in_service/resolve_intvls_nis.sql">**`resolve_intvls_nis()`**</a> and <a href="/src/sprocs/wave_timings/resolve_intvls_wt.sql">**`resolve_intvls_wt()`**</a>. Each of them deals with variants of only one table: `staff_regular_availability`, `blocked_periods`, `vehicles_not_in_service` and `wave_timings` respectively. 
 
@@ -203,7 +204,7 @@ This algorithm is implemented in four stored procedures: <a href="/src/sprocs/st
 The procedure `resolve_intvls_sra()` works basically as follows:
 
 - First, it compares the current <a href="#snapshot_definition">snapshot</a> of `regular_staff_availability` with its modification variant to identify each pair `(user_id, wday)` for which the modification of the corresponding rows includes either changing some original pair `(interval_beginning, interval_end)` or adding a row with a new `(interval_beginning, interval_end)`.
-- Second, <a href="#ovrlpg_algorithm">the algorithm</a> constructs the resolving sets of time intervals for each set of time intervals related to `(user_id, wday)` identified in the first step.
+- Second, <a href="#algorithm">the algorithm</a> constructs the resolving sets of time intervals for each set of time intervals related to `(user_id, wday)` identified in the first step.
 - Third, the procedure replaces the rows containing the pairs (user_id, wday) identified in the first step with the constructed resolving sets.
 
 As it follows from <a href="#stmt_3">S3</a>, there is no need for any additional actions if some rows have been deleted from the variant, so the third step completes the resolution process.
@@ -211,11 +212,11 @@ As it follows from <a href="#stmt_3">S3</a>, there is no need for any additional
 The data transformation processes carried out by `resolve_intvls_bp()`, `resolve_intvls_nis()` and `resolve_intvls_wt()`  are similar to what `resolve_intvls_sra()` does. For detail, see comments in <a href="/src/sprocs/staff_regular_availability/resolve_intvls_sra.sql">`resolve_intvls_sra.sql`</a> <a href="/src/sprocs/blocked_periods/resolve_intvls_bp.sql">`resolve_intvls_bp.sql`</a>, <a href="/src/sprocs/vehicles_not_in_service/resolve_intvls_nis.sql">`resolve_intvls_nis.sql`</a> and <a href="/src/sprocs/wave_timings/resolve_intvls_wt.sql">`resolve_intvls_wt.sql`</a>
 
 
-<a name="Comparing_datasets"><h2>Comparing OM shipping datasets. Stored procedure compare_variants()</h2></a>
+### Comparing OM shipping datasets. Stored procedure compare_variants()
 
 Sometimes managing shipping resources may need us to compare datasets contained in identically structured tables, and it would be helpful to have a tool making such comparisons easier. To illustrate this, consider an extremely simple example.
 
-<a name="cmpr_example"><h4>Example</h4></a>
+#### Example
 
 Suppose that on Tuesdays the employee with `user_id = 1` is available throughout two intervals:
 
@@ -313,7 +314,7 @@ ORDER BY user_id, wday
 ```
 The output is <a href = "#cmpr_simple">`cmpr_simple`</a>.
 	
-<a name="Gen_case_comparing"><h4>The general case</h4></a>
+#### The general case
 	
 When we need to compare larger and more complex datasets (e.g. a `staff_regular_availability` with numerous users and multiple days of the week) as well as three or more dataset variants, employing the comparison table approach can be considerably more effective than in the above simplistic example. The following explains how this approach can be generalized for the case of an arbitrary table and any number of dataset variants. 
 	
@@ -375,13 +376,13 @@ ORDER BY id_1, ... , id_imax
 ```
 that will deliver to us the coveted comparison table <a href="#cmpr">`cmpr`</a>.
 
-<a name="impl_comparison"><h4>Implementation</h4></a>
+#### Implementation
 
 This general-case plan is implemented in the stored procedure <a href="/src/sprocs/compare_variants.sql">`compare_variants()`</a>. 
 
 The procedure has four IN parameters `in_tbs_to_join`, `in_id_cols`, `in_dat_cols`, `cmpr_result` that are table names, which lets us work around the fact that table-valued parameters are not supported in MySQL and pass array data to the procedure.
 
-- `in_tbs_to_join` used to pass `compare_variants()` the name of the table that, in its turn, holds the names of the tables containing the datasets we are going to compare like `t_1`, ... , `t_kmax` above, e.g., referring back to <a href="#cmpr_example">the example above</a>,
+- `in_tbs_to_join` used to pass `compare_variants()` the name of the table that, in its turn, holds the names of the tables containing the datasets we are going to compare like `t_1`, ... , `t_kmax` above, e.g., referring back to <a href="#example-1">the example above</a>,
 
 	| `id`|              `table_name`  		  | 
 	| --- | ----------------------------------------- | 
@@ -410,17 +411,14 @@ For more detail, see <a href="/src/sprocs/compare_variants.sql">`compare_variant
 for example, those employed to compare datasets in a specific type of table (like <a href="/src/sprocs/blocked_periods/cmpr_variants_bp.sql">`cmpr_variants_bp()`</a> that compares variants of `blocked_periods`) or 
 verify whether the current snapshot of an original table is still relevant (like <a href="/src/sprocs/wave_timings/check_diff_wt.sql">`check_diff_wt()`</a> doing this job for blocked_periods).
 
-<a name="outline"/>
-
 ## Shipping resources management process outline
 
-At the most general level, the management process in the OM shipping system comprises sessions in which individual users can read and modify data in the database.  The organization of the process at this level was discussed <a href="#Multi-session">above</a>. 
+At the most general level, the management process in the OM shipping system comprises sessions in which individual users can read and modify data in the database.  The organization of the process at this level was discussed <a href="#multi-user-functionality-concurrency-and-isolation-levels">above</a>. 
 
 The following flowchart gives an overall view of the process at its next, single-session level.
 
 ![ ](/img/overall_process_outline.svg)
  
-<a name="process_stage_1"/>
 
 ### Stage 1
 
@@ -436,13 +434,11 @@ The flowchart below provides details about the subprocess for `staff_regular_ava
 
 The other three subprocesses follow the same pattern (see the code and comments in <a href="/src/sprocs/blocked_periods">`blocked_periods`</a>, <a href="/src/sprocs/vehicles_not_in_service">`vehicles_not_in_service`</a> and <a href="/src/sprocs/wave_timings">`wave_timings`</a>). 
 
-<a name="process_stage_2"/>
 
 ### Stage 2
 
 The user applies the stored procedures <a href="/src/sprocs/wave_available_staff/get_ws.sql">`get_ws()`</a> and <a href="/src/sprocs/wave_available_vehicles/get_wv.sql">`get_wv()`</a> to all or some selected combinations of the original tables `staff_regular_availability`, `blocked_periods`, `vehicles_not_in_service`, `wave_timings`, and their variants created in Stage 1, which results in creating variants of `wave_staff_availability` and `wave_vehicle_availability`.
 
-<a name="process_stage_3"/>
 
 ### Stage 3
 
@@ -452,14 +448,12 @@ If for any of the four tables, none of the variants is adequate, the user return
 
 Otherwise, the user selects the optimal variant for each of the tables `staff_regular_availability`, `blocked_periods`, `vehicles_not_in_service` and `wave_timings` and converts the selected variant into the corresponding table; <a href="/src/sprocs/staff_regular_availability/change_sra.sql">`change_sra()`</a>, <a href="/src/sprocs/blocked_periods/change_bp.sql">`change_bp()`</a>, <a href="/src/sprocs/vehicles_not_in_service/change_nis.sql">`change_nis()`</a> and <a href="/src/sprocs/wave_timings/change_wt.sql">`change_wt()`</a> are used for such conversions.
 
-<a name="Further_development"/> 
 
-<h2>Further development</h2>
+## Further development
 
 - In this project, there are data flows that are very much alike, but each of them is run by a stored procedure specific to this data flow –  for example, <a href="/src/sprocs/staff_regular_availability/change_sra.sql">`change_sra()`</a>, <a href="/src/sprocs/blocked_periods/change_bp.sql">`change_bp()`</a>, <a href="/src/sprocs/vehicles_not_in_service/change_nis.sql">`change_nis()`</a> and <a href="/src/sprocs/wave_timings/change_wt.sql">`change_wt()`</a> make changes in `staff_regular_availability`, `blocked_periods`,  `vehicles_not_in_service` and `wave_timings` respectively. With more extensive use of dynamic SQL (similar to that in <a href="/src/sprocs/create_mod.sql">`create_mod()`</a>), such a set of specific stored procedures can be replaced by a single procedure.
 - Currently, every OM shipping system user has the same data access privileges as those granted to the user on the entire OM database. If the shipping system privileges need another configuration, this can be done either through using MySQL row-level security solutions, or via adjusting the SQL SECURITY clause values in the project’s stored procedures, or by a combination of both means.
 
-<a name="Acknowledgements">
 
 ## Acknowledgements
 
