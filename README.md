@@ -32,10 +32,10 @@ in the OM shipping management system.
 
 The following aspects of  the OM shipping management system are essential for this project.<br> 
 1. It is required that <br>
-    1. multiple users can <a name="Multi-session_req_i">access the system at the same time (each one in a separate session) with permission to modify data in the database;</a> <br>
-    1. <a name="Multi-session_req_ii">each user can create several variants of the modification (independently from other users), compare them and choose the variant the user considers the most suitable.</a> <br>
-2. <a name="various_applications">Various applications can be used to access the database;</a>
-3. <a name="connection_stability">During a session, the connection between the user's application and the DBMS is fairly stable.</a>
+    1. multiple users can <a name="Multi-session_req_i"></a>access the system at the same time (each one in a separate session) with permission to modify data in the database; <br>
+    1. <a name="Multi-session_req_ii">each user can create several variants of the modification (independently from other users), compare them and choose the variant the user considers the most suitable. <br>
+2. <a name="various_applications"></a>Various applications can be used to access the database;</a>
+3. <a name="connection_stability"></a>During a session, the connection between the user's application and the DBMS is fairly stable.
 
 As mentioned in <a href="https://github.com/AndreyMaykov/Online_marketplace_shipping__SQL/blob/main/Readme.md/#Calculating_intervals">the discussion</a> of the OM Shipping Schema project, determining resources availability requires some calculations with the data the OM database contains, and such calculations can be carried out either by the database management system or an accessing application. 
 
@@ -65,13 +65,13 @@ In our case, however, this can cause another issue: if the user has to create an
 Therefore in this project, the problem is dealt with in a different way:
 
 1. Before the user starts creating variants of a table, two identical copies of its data are generated, and only this user has access to them. One copy is modified by the user (which results in creating table modification variant #1). 
-The other copy, further referred to as the <a name="snapshot_definition">**snapshot**</a>, is used to:
+The other copy, further referred to as the <a name="snapshot_definition"></a>**snapshot**, is used to:
 	- check whether the data in the original table has been changed since the copy was created (checks can be done by the user at any time and are done automatically right before the user starts <a href="#replicating_modifications">replicating the modifications</a> to the original table, and
 	- generate more copies (also accessible to this user only) if additional modification variants are needed.
 
 2. If any changes to the original table's data are detected through such checks, the session user can evaluate whether the changes are compatible with the intended modifications, and either continue with the created modification variants or restart the process by creating the two copies of the current table data.
 
-3. <a name="replicating_modifications">Once the session user has decided on the final version of the table data modification, the modification is replicated to the original DB table</a>.
+3. <a name="replicating_modifications"></a>Once the session user has decided on the final version of the table data modification, the modification is replicated to the original DB table</a>.
 
 This general scheme was implemented using SQL temporary tables for all the data copies the user creates or modifies, as well as for any supplementary datasets the user may need for manipulating the copies. This guarantees that no other users' actions can interfere with such manipulations. <a href="#connection_stability">The connection stability</a> minimizes the risk of loosing the temp tables' data due to an accidental session termination. 
 
@@ -84,7 +84,7 @@ The following example is only meant to outline the problem of overlapping time i
 
 #### Example
 
-Suppose the availability of an employee on Monday is presented in `staff_regular_availability` <a name = "five_rows">like this</a>:  
+Suppose the availability of an employee on Monday is presented in `staff_regular_availability` <a name = "five_rows"></a>like this:  
 
 | `user_id`  | `wday`  | `interval_beginning`  | `interval_end`  |
 | ---------- | ------- | --------------------- | --------------- |
@@ -100,7 +100,7 @@ The intervals [09:00, 12:00] and [11:00, 14:00] overlap (both contain [11:00, 12
 
 Likewise, the intervals [15:00, 16:00], [16:00, 18:00] and [16:15, 17:45] can be replaced by the interval [14:00, 18:00] (because the end of the first of these intervals is the beginning of the second one and the third interval is contained in the second).
 
-Thus the  <a name = "two_rows">two rows</a>
+Thus the  <a name = "two_rows"></a>two rows
 
 | `user_id`  | `wday`  | `interval_beginning`  | `interval_end`  |
 | ---------- | ------- | --------------------- | --------------- |
@@ -126,7 +126,7 @@ ${x' > - \infty}$,
 ${x'' < + \infty}$). 
 By a **set of intervals** we  mean a finite set (i.e. one comprised of a finite number of intervals).
 
-Consider <a name="def_x_prime_etc">two sets of intervals</a>:
+Consider <a name="def_x_prime_etc"></a>two sets of intervals:
 	
 $$
 	\{{\\{X\_n\\}\_{n=1}^N}\} \qquad \mbox{\sf{where}} 
@@ -267,7 +267,7 @@ and `t_2`
 
 These are the two datasets &mdash; or two dataset variants &mdash; we need to compare to make our choice.
 
-To make the difference between the variants `t_1` and `t_2` more apparent, we could use a **comparison table** <a name = "cmpr_simple">`cmpr_simple`</a> that presents the data in immediate juxtaposition:
+To make the difference between the variants `t_1` and `t_2` more apparent, we could use a **comparison table** <a name = "cmpr_simple"></a>`cmpr_simple` that presents the data in immediate juxtaposition:
 
 
 | `user_id`  | `wday`  | `t_1_interval_beginning`             | `t_1_interval_end`                 | `t_2_interval_beginning`           | `t_2_interval_end`                 |
@@ -329,7 +329,7 @@ with
 
 where the numbers `imax` and `dmax` are arbitrary. 
 
-Suppose we need to compare a number of `tb` dataset versions `t_k` (`k = 1, ... , kmax`). Our goal is to create an analogue of <a href = "#cmpr_simple">`cmpr_simple`</a> &mdash; a comparison table <a name="cmpr">**`cmpr`**</a> with columns
+Suppose we need to compare a number of `tb` dataset versions `t_k` (`k = 1, ... , kmax`). Our goal is to create an analogue of <a href = "#cmpr_simple">`cmpr_simple`</a> &mdash; a comparison table <a name="cmpr"></a>**`cmpr`** with columns
 	
 | `id_1` | ... | `id_imax` | `t_1_dat_1` | ... | `t_1_dat_dmax` | ... ... | `t_kmax_dat_1` | ... | `t_kmax_dat_dmax` |
 | ------ | ----| --------- | ----------- | --- | -------------- | --------| -------------- | --- | ----------------- |
