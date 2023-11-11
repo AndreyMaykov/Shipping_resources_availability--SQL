@@ -3,7 +3,7 @@
 The main goal of this project is to provide a database-level solution to 
 the problem of determining resources availability
 (see <a href="https://github.com/AndreyMaykov/Online_marketplace_shipping__SQL/blob/main/Readme.md">Online Marketplace Shipping Schema Project</a>). However, some of the stored procedures created for this purpose can be helpful for handling a much more complex problem &mdash; 
-<a href="https://github.com/AndreyMaykov/Online_marketplace_shipping__SQL/blob/main/Readme.md/#Stage_B">dispatching orders and vehicles for a wave</a> 
+dispatching orders and vehicles for a wave
 in the OM shipping management system.
 
 ## Contents
