@@ -1,8 +1,7 @@
 # Shipping Resources Availability Project
 
 The main goal of this project is to provide a database-level solution to 
-<a href="https://github.com/AndreyMaykov/Online_marketplace_shipping__SQL/blob/main/Readme.md#Calculating_intervals_internal">the resources availability problem</a> </br>
-<a href="https://github.com/AndreyMaykov/Online_marketplace_shipping--SQL/blob/main/Readme.md#Contents"> UUU </a> related to the OM shipping database 
+the problem of determining resources availability
 (see <a href="https://github.com/AndreyMaykov/Online_marketplace_shipping__SQL/blob/main/Readme.md">Online Marketplace Shipping Schema Project</a>). However, some of the stored procedures created for this purpose can be helpful for handling a much more complex problem &mdash; 
 <a href="https://github.com/AndreyMaykov/Online_marketplace_shipping__SQL/blob/main/Readme.md/#Stage_B">dispatching orders and vehicles for a wave</a> 
 in the OM shipping management system.
