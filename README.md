@@ -30,7 +30,7 @@ in the OM shipping management system.
   
 ## Introduction
 
-The following aspects of  the OM shipping management system are essential for this project.<br> 
+The following aspects of the OM shipping management system are essential for this project.<br> 
 1. It is required that <br>
     1. multiple users can <a name="Multi-session_req_i"></a>access the system at the same time (each one in a separate session) with permission to modify data in the database; <br>
     1. <a id="Multi-session_req_ii"></a>each user can create several variants of the modification (independently from other users), compare them and choose the variant the user considers the most suitable. <br>
@@ -54,7 +54,7 @@ These are the main reasons why for this project, the database-level approach was
 
 ### Multi-user functionality. Concurrency and isolation levels
 
-For a session user, the process of modifying data in the OM database can include creating modification variants for multiple DB tables (see&nbsp;<a href="Multi-session_req_ii">1.ii</a> above) and evaluating these variants against OM shipping needs and policies. The user may add variants in several cycles before a proper combination of variants is obtained. 
+For a session user, the process of modifying data in the OM database can include creating modification variants for multiple DB tables (see&nbsp;<a href="#Multi-session_req_ii">1.ii</a> above) and evaluating these variants against OM shipping needs and policies. The user may add variants in several cycles before a proper combination of variants is obtained. 
 
 There is a possibility that another user is working with the same tables at the same time and have changed the table data, which may result in inconsistency of the data the first user retrieves in different cycles.
 
