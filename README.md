@@ -33,7 +33,7 @@ in the OM shipping management system.
 The following aspects of  the OM shipping management system are essential for this project.<br> 
 1. It is required that <br>
     1. multiple users can <a name="Multi-session_req_i"></a>access the system at the same time (each one in a separate session) with permission to modify data in the database; <br>
-    1. <a name="Multi-session_req_ii"></a>each user can create several variants of the modification (independently from other users), compare them and choose the variant the user considers the most suitable. <br>
+    1. <a id="Multi-session_req_ii"></a>each user can create several variants of the modification (independently from other users), compare them and choose the variant the user considers the most suitable. <br>
 2. <a name="various_applications"></a>Various applications can be used to access the database;</a>
 3. <a name="connection_stability"></a>During a session, the connection between the user's application and the DBMS is fairly stable.
 
